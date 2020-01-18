@@ -7,46 +7,56 @@
 
 using namespace std;
 
-
-class DataSet
-{
-    private:  
-        vector<vector <double> > data;
-    
-    public:     
-        void push(double x, double y) 
-        {
-            vector<double> entry(x,y);
-            data.push_back(entry);
-        }
-
-        vector<vector <double> > getD()
-        {
-            return data;
-        }
-};
-
 class Regression
 {
     private:   
-        vector<vector <double> > data;
+        vector<vector <double> > train_data;
+        vector<vector <double> > test_data;
+
         double sumX;
         double sumY;
         double inpXX;
         double inpXY;
         double inpYY;
 
+
+        struct Coefficient
+        {
+            double theta0;
+            double theta1;
+
+        };
+
+        Coefficient* coefficient0;
+        Coefficient* coefficient1;
+
         double accumulate(int index)
         {
             double sum = 0;
 
-            for (int v = 0; v < data.size(); v ++)
+            for (int v = 0; v < train_data.size(); v ++)
             {
-                sum += data[v][index];
+                sum += train_data[v][index];
             }
 
             return sum;
 
+        }
+
+        double mean(int index)
+        {
+            int size = train_data.size();
+
+            double sum = 0;
+            
+            for (int v = 0; v < train_data.size(); v ++)
+            {
+            
+                sum += train_data[v][index];
+
+            }
+            
+            return sum/size;
         }
 
         double innerProduct(int indexX, int indexY)
@@ -56,10 +66,10 @@ class Regression
             if  (indexX != indexY) 
             {   
                 // innerproduct : sum += xi * yi
-                for (int v = 0; v < data.size(); v ++)
+                for (int v = 0; v < train_data.size(); v ++)
                 {
                     
-                    inprod += (data[v][indexX] * data[v][indexY]);
+                    inprod += (train_data[v][indexX] * train_data[v][indexY]);
                     
                 }
             }
@@ -67,124 +77,152 @@ class Regression
             else 
             {
                 //inner product: sum += xi * x(i+1)
-                for (int v = 0; v < data.size()-1; v ++)
+                for (int v = 0; v < train_data.size()-1; v ++)
                 {
                     
-                    inprod += (data[v][indexX] * data[v+1][indexX]);
+                    inprod += (train_data[v][indexX] * train_data[v+1][indexX]);
                     
                 }
             }
             return inprod;
         }
 
-        double return_cost(double a, double b, double da, double db)
-        {
-            int size = data.size();
-            inpYY = innerProduct(1, 1);
-
-            double cost = inpYY - 2 * a * inpXY - 2 * b * sumY + pow(a,2) * inpXX + 2 * a * b * sumX + size * pow(b,2);
-            cost /= size;
-
-            da = 2 * (-inpXY + a * inpXX + b * sumX) / size;
-            db = 2 * (-sumY + a * sumX + size * b) / size;
-
-            return cost;
-        }
-
-
     public:   
-        Regression (vector<vector <double> > dataset) 
+        Regression ()
         {
-            data = dataset;
+            coefficient0 = new Coefficient();
+            coefficient1 = new Coefficient();
         }
 
-        double slope()
+        void push(double x, double y) 
         {
-            sumX = accumulate(0);
-            sumY = accumulate(1);
+            vector<double> entry;
+            entry.push_back(x);
+            entry.push_back(y);
 
-            inpXX = innerProduct(0, 0);
-            inpXY = innerProduct(0, 1);
-
-            int size = data.size();
-
-            double denor = (size  * inpXX) -  (sumX * sumX);
-            double nor = (size * inpXY) -  (sumX * sumY);
-
-            if (denor != 0)
-            {
-                return nor / denor;
-            }
-
-            else
-            {
-                
-                return numeric_limits<double>::max();
-            }
+            train_data.push_back(entry);
         }
 
-        double intercept(double slope)
+        void push_test(double x, double y)
         {
-            int size = data.size();
-            return (sumY - slope * sumX) /  size; 
+            vector<double> entry;
+            entry.push_back(x);
+            entry.push_back(y);
+
+            test_data.push_back(entry); 
         }
 
-
-        void LinearRegression(double slope = 1, double intercept = 0)
+        void estimate_coefficient()
         {
-            double lrate = 0.0002;
-            double threshold = 0.0001;
-            int counter = 0;
+            int size = train_data.size();
+            double meanX = mean(0);
+            double meanY = mean(1);
 
-            while (true)
+            double sumX = accumulate(0);
+            double sumY = accumulate(1);
+
+            double inpXX = innerProduct(0,0);
+            double inpXY = innerProduct(0,1);
+
+            double SS_xy = inpXY - (size * meanY * meanX);
+            double SS_xx = inpXX - (size * meanX * meanX);
+
+            double SS_xy_sum = inpXY - (size * sumY * sumX);
+            double SS_xx_sum = inpXY - (size * sumX * sumX);
+             
+            double theta_1 = SS_xy / SS_xx;
+            double theta_0 = meanY - theta_1 * meanX;
+
+            double theta_1_sum = SS_xy_sum / SS_xx_sum;
+            double theta_0_sum = sumY - theta_1_sum * sumX;
+
+            coefficient0->theta0 = theta_0;
+            coefficient0->theta1 = theta_1;
+
+            coefficient1->theta0 = theta_0_sum;
+            coefficient1->theta1 = theta_1_sum;
+
+            //H0 is based on using mean to find thetas
+            //H1 is based on using sum to find thetas
+            cout << "H0: y = " << coefficient0->theta0 << " + " << coefficient0->theta1 << "x " << endl;
+            cout << "H1: y = " << coefficient1->theta0 << " + " << coefficient1->theta1 << "x " << endl;
+
+            cout << "Pick the lowest cost" << endl;
+            cout << "H0's cost: " << cost(coefficient0) << endl;
+            cout << "H1's cost: " << cost(coefficient1) << endl; 
+
+        }
+
+        double cost(Coefficient* coefficient)
+        {
+            double sum_of_squared = 0;
+            int m = train_data.size();
+
+            double theta0 = coefficient->theta0;
+            double theta1 = coefficient->theta1;
+
+            for (int v = 0; v < test_data.size(); v ++ )
             {
-                double da = 0; double db = 0;
-                double cost = return_cost(slope, intercept, da, db);
+                // grab X from test_data
+                double y = theta0 + theta1 * test_data[v][0];
+        
+                //compare Y and squared it
+                double y_difference = pow((test_data[v][1] - y), 2);
 
-                
-                cout << "pass: " << counter << " cost = " << cost << " da = " << da << " db = " << db << endl;
-
-                counter ++;
-
-                if (abs(da) < threshold && abs(db) < threshold)
-                {
-                    cout << "\n\ny = " << slope << "x" << " + "<< intercept << endl;
-                    break;
-                }
-
-                //decrement
-                slope -= lrate* da;
-                intercept -= lrate * db;
+                sum_of_squared += y_difference;
 
             }
-        }    
+            
+            return sum_of_squared / (2 * m);
+
+        }
+
 };
 
 
 int main()
 {
     // y = bias + coefficient * x
+    Regression data = Regression();
+    data.push(84, 21);
+    data.push(70, 14);
+    data.push(37, 8);
+    data.push(152, 33);
+    data.push(39, 9);
+    data.push(53, 13);
+    data.push(77, 22);
+    data.push(72, 17);
+    data.push(157, 36);
+    data.push(97, 30);
+    data.push(117, 31);
+    data.push(87, 18);
+    data.push(145, 39);
+    data.push(113, 26);
+    data.push(123, 37);
+    data.push(18, 4);
+    data.push(104, 32);
+    data.push(149, 47);
+    data.push(55, 15);
+    data.push(76, 21);
+    data.push(126, 36);
+    data.push(71, 17);
+    data.push(16, 3);
+    data.push(116, 37);
+    data.push(94, 22);
+    data.push(58, 14);
+    data.push(56, 16);
+    data.push(106, 22);
+   
+    data.push_test(85, 17);
+    data.push_test(93, 29);
+    data.push_test(29, 27);
+    data.push_test(99, 21);
+    data.push_test(156, 34);
+    data.push_test(46, 11);
+    data.push_test(76, 19);
+    data.push_test(83, 19);
+    data.push_test(50, 12);
 
-    DataSet data = DataSet();
-    data.push(71, 160);
-    data.push(73, 183);
-    data.push(64, 154);
-    data.push(65, 168);
-    data.push(61, 159);
-    data.push(70, 180);
-    data.push(65, 145);
-    data.push(72, 210);
-    data.push(63, 132);
-    data.push(67, 168);
-    data.push(64, 141);
+    data.estimate_coefficient();
 
-    Regression linear = Regression(data.getD());
-    double slope = linear.slope();
-    double intercept = linear.intercept(slope);
-
-    cout << "slope " << slope << " intercept: " << intercept << endl;
-
-
-    linear.LinearRegression(slope, intercept);
-    
 }
