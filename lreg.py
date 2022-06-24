@@ -89,8 +89,8 @@ def train(model: LinearReg, train_data: tuple, epochs: int = 2, verbose: bool = 
         model.A -= 9e-9 * dJdA
         
         if train_with_bias:
-            """ Update Bias --- make sure you remove continue and to use 9e-9 as the learning rate!"""
-            continue
+            """ Update Bias --- declare dJdB somewhere and make sure the shape is correct...."""
+            #model.B -= 9e-9 * dJdB
         
         if verbose: 
             print("Training iteration:", epoch + 1, "Loss:", float(loss))
