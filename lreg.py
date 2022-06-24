@@ -95,7 +95,9 @@ def train(model: LinearReg, train_data: tuple, epochs: int = 2, verbose: bool = 
         if train_with_bias:
             """ Update Bias --- declare dJdB somewhere and make sure the shape is correct...."""
             # what should we with dJdB before updating B? 
-            # Look at line 90: dJdA /= ...
+            # hint: Look at line 90
+            # ask yourself, why we need to do that
+            
             #model.B -= 9e-9 * dJdB
         
         if verbose: 
