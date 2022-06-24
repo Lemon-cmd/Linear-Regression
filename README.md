@@ -7,7 +7,8 @@ Required packages:
 
 Questions:
 ```
-The learning rate is set to 9e-9 in the code. Play around with its value and observe the loss value.
+The learning rate is set to 9e-9 in the code. 
+Play around with its value and observe the loss value.
 
 Without googling, what is the role of the learning rate based on your observations?
 
