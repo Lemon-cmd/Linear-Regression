@@ -10,8 +10,6 @@ x_test, y_test = mndata.load_testing()
 
 to_np_array = lambda x, shape: np.array(x).reshape(shape)
 
-N = 3000
-
 # convert to numpy arrays
 x_train = to_np_array(x_train, [-1, 28 * 28])
 y_train = to_np_array(y_train, [-1, 1])
@@ -54,6 +52,8 @@ class LinearReg:
 def train(model: LinearReg, train_data: tuple, epochs: int = 2, verbose: bool = False, train_with_bias: bool = False):
     assert len(train_data) == 2
     
+    lrate = 9e-9
+    
     if train_with_bias:
         assert model.bias == True, 'The bias parameter is not enabled.'
     
@@ -90,7 +90,7 @@ def train(model: LinearReg, train_data: tuple, epochs: int = 2, verbose: bool = 
         dJdA /= N
         
         # update A 
-        model.A -= 9e-9 * dJdA
+        model.A -= lrate * dJdA
         
         if train_with_bias:
             """ Update Bias --- declare dJdB somewhere and make sure the shape is correct...."""
@@ -98,7 +98,7 @@ def train(model: LinearReg, train_data: tuple, epochs: int = 2, verbose: bool = 
             # hint: Look at line 90
             # ask yourself, why we need to do that
             
-            #model.B -= 9e-9 * dJdB
+            #model.B -= lrate * dJdB
         
         if verbose: 
             print("Training iteration:", epoch + 1, "Loss:", float(loss))
