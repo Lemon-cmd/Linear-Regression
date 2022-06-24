@@ -80,16 +80,22 @@ def train(model: LinearReg, train_data: tuple, epochs: int = 2, verbose: bool = 
             
             if train_with_bias:
                 """ Calculate dJ w.r.t Bias or B, i.e., dJ/dB """
+                # tip: djdyh is used here.
+                # reminder: the loss function J = (1 / (2 * N)) summation of (yh - y)^2
+                
+                # remove continue once you are done
                 continue
 
         loss /= (N * 2.0)
         dJdA /= N
-
+        
         # update A 
         model.A -= 9e-9 * dJdA
         
         if train_with_bias:
             """ Update Bias --- declare dJdB somewhere and make sure the shape is correct...."""
+            # what should we with dJdB before updating B? 
+            # Look at line 90: dJdA /= ...
             #model.B -= 9e-9 * dJdB
         
         if verbose: 
