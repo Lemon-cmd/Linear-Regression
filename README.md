@@ -19,5 +19,6 @@ Why is the model limited? (Think mathematically and visually (draw a plot))
 
 How can you improve it? (Think about the data and the available features)
 
-A fundamnetal rule has been broken in this code to obtain the learning rate value of 9e-9, in regards to data handling, what could it be?
+A fundamnetal rule has been broken in this code to obtain the learning rate value of 9e-9, 
+in regards to data handling, what could it be?
 ```
