@@ -6,7 +6,7 @@ Required packages:
 ``` numpy, python-mnist, and matplotlib ```
 
 Questions:
-
+```
 The learning rate is set to 9e-9 in the code. Play around with its value and observe the loss value.
 
 Without googling, what is the role of the learning rate based on your observations?
@@ -20,3 +20,4 @@ Why is the model limited? (Think mathematically and visually (draw a plot))
 How can you improve it? (Think about the data and the available features)
 
 A fundamnetal rule has been broken in this code to obtain the learning rate value of 9e-9, in regards to data handling, what could it be?
+```
