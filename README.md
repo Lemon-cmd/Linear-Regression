@@ -1,2 +1,1 @@
-# LinearRegression
-Linear Regression Algorithm in C++
+# Simple Linear Regression
